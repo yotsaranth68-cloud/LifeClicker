@@ -1,40 +1,88 @@
-🏙️ TownClicker: Urban Evolution
-Final Project for Object-Oriented Programming (OOP) Course
-Ubon Ratchathani University
+# 🏙️ TownClicker: Urban Evolution
 
-📖 Project Overview
-TownClicker เป็นเกมแนว Clicker/Tycoon ที่จำลองการบริหารจัดการและพัฒนาเมืองจากยุคเกษตรกรรมไปสู่ยุคอุตสาหกรรม ผู้เล่นจะต้องคลิกเพื่อสะสมความเจริญ (City Level) และบริหารเงินงบประมาณเพื่อซื้อสิ่งก่อสร้างต่างๆ ซึ่งจะช่วยเพิ่มรายได้แบบ Passive Income และปลดล็อกยุคสมัยใหม่ (New Era/Reborn)
+**โปรเจกต์สุดท้ายสำหรับวิชา OOP** — มหาวิทยาลัยอุบลราชธานี
 
-🛠 Frameworks & Architecture
-Language: Python 3.12
+---
 
-Library: Pygame
+## 📖 บทนำโครงการ
 
-Architecture: Object-Oriented Programming (OOP)
+_TownClicker_ เป็นเกมแนวคลิกเกอร์/ไทคูน ที่ให้ผู้เล่นบริหารเมือง
+ตั้งแต่ยุคเกษตรกรรมไปสู่ยุคอุตสาหกรรม ทุกครั้งที่คลิกจะเพิ่ม
+**ระดับเมือง** และเงินที่สะสมสามารถนำไปซื้อสิ่งก่อสร้างเพื่อสร้าง
+รายได้แบบพาสซีฟ เมื่อถึงเป้าระดับ ผู้เล่นสามารถ "รีบอร์น" เพื่อเข้าสู่
+ยุคใหม่พร้อมโบนัสรายได้ที่สูงขึ้น
 
-🧱 Applied OOP Principles
-Encapsulation: คลาส City ทำหน้าที่ปกป้องข้อมูลระดับความเจริญและงบประมาณ โดยจัดการผ่าน Method ภายในเท่านั้น
+โค้ดเน้นการออกแบบเชิงวัตถุอย่างสะอาดตามหลัก SOLID และง่ายต่อการ
+ขยายในอนาคต
 
-Inheritance & Abstraction: การใช้คลาสพื้นฐานสำหรับสิ่งก่อสร้าง (BuildingType) เพื่อกำหนดคุณสมบัติร่วมของ Wheat, Blacksmith และ River
+---
 
-Polymorphism: ระบบการวาดภาพ (Rendering) และการคำนวณรายได้ที่จัดการผ่านรายการสิ่งก่อสร้างในรูปแบบลิสต์ โดยใช้อินเทอร์เฟซเดียวกัน
+## 🛠️ เทคโนโลยีและสถาปัตยกรรม
 
-🛡️ SOLID Principles Implementation
-Single Responsibility (S): แยก Logic การคำนวณเงิน, การจัดการ Sprite และการแสดงผลออกจากกันชัดเจน
+- **ภาษา**: Python 3.12
+- **ไลบรารี**: [Pygame](https://www.pygame.org/)
+- **สถาปัตยกรรม**: โมดูลาร์ OOP
 
-Open/Closed (O): ระบบรองรับการเพิ่มสิ่งก่อสร้างใหม่ๆ (เช่น ปราสาท, โรงไฟฟ้า) ได้เพียงแค่เพิ่ม Instance ใน shop_items โดยไม่ต้องแก้ไข Logic การซื้อขายหลัก
+### โครงสร้างโฟลเดอร์
+```
+TownClicker/
+├── assets/             # สไปรต์และสื่ออื่น ๆ
+├── city.py             # โมเดล `City` และตรรกะเกม
+├── building.py         # โมเดล `BuildingType` (โหลดสไปรต์, จัดการซื้อ)
+├── main.py             # จุดเริ่มต้น / ลูปเกม / UI
+├── README.md
+└── requirements.txt
 
-👥 Team Members
-นายยศสรัล ถิระบุตร - Programmer / Software Architect / Quality Assurance
 
-🚀 Installation & Usage
-Clone Repository:
+## 🧱 การออกแบบเชิงวัตถุ
+
+### แนวคิดหลัก
+- **Encapsulation** – คลาส `City` มีเมธอดอย่าง `update()` และ `reborn()`
+  เพื่อจัดการสถานะภายใน (`_level`, `funds`) โดยไม่ให้โค้ดภายนอก
+  เข้าถึงโดยตรง
+- **Inheritance & abstraction** – `BuildingType` เป็นฐานร่วมสำหรับ
+  สิ่งก่อสร้างต่าง ๆ (Wheat, Blacksmith, River เป็นต้น) สามารถ
+  สร้างซับคลาสหรือตกแต่งเพื่อเพิ่มพฤติกรรมได้
+- **Polymorphism** – การวาดภาพและคำนวณรายได้จะวนลูปผ่าน
+  รายการสิ่งก่อสร้างโดยไม่สนใจชนิดย่อย
+
+### การใช้งาน SOLID
+- **Single Responsibility** – ทุกโมดูลมีหน้าที่เดียว:
+  `city.py` ดูแลสถานะเมืองและตรรกะการซื้อ (`purchase()`),
+  `building_manager.py` จัดการรายการและตำแหน่งของสิ่งก่อสร้าง,
+  `building.py` เก็บข้อมูลสิ่งก่อสร้าง (ต้นทุน, รูปภาพ, โบนัส),
+  `main.py` จัดการการเริ่มต้น, อินพุต, และการเรนเดอร์
+- **Open/Closed** – เพิ่มสิ่งก่อสร้างใหม่โดยสร้าง `BuildingType`
+  แล้วเพิ่มใน `shop_items` ได้ทันทีโดยไม่ต้องแก้โค้ดเดิม
+- (หลัก Liskov, Interface, Dependency Inversion เป็นแนวทางสำหรับ
+  การพัฒนาต่อไป)
+
+---
+
+## 🚀 การติดตั้งและใช้งาน
+
+```bash
 git clone https://github.com/yotsaranth68-cloud/LifeClicker.git
 cd TownClicker
 pip install -r requirements.txt
-python main.py
+python main.py          # เปิดเกม
+```
 
-🎨 Asset Credits
-Art Style: Isometric 2.5D Sprite
-Source: Artyom Zagorskiy
-License: CC0 1.0 Universal (Public Domain)
+หน้าต่างเกมจะปรากฏขึ้น; คลิกพื้นที่กลางเพื่อเพิ่มระดับเมือง
+และใช้เมนูขวาเพื่อซื้อสิ่งก่อสร้าง
+
+---
+
+## 🎨 สื่อ/สไปรต์
+
+ภาพสไปรต์เป็นงานอาร์ตไอโซเมตริก 2.5D โดย Artyom Zagorskiy
+(สัญญาอนุญาต CC0 1.0 สาธารณสมบัติ) เก็บไว้ในโฟลเดอร์ `assets/`
+
+---
+
+## 👥 ผู้พัฒนา
+ยศศรัล ถิระบุตร – นักเขียนโปรแกรม / สถาปนิกซอฟต์แวร์
+
+---
+
+*สามารถ Fork, ขยาย หรือศึกษาโค้ดเพื่อการเรียนรู้ได้ตามสะดวก*
