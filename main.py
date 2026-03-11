@@ -1,45 +1,61 @@
+# เพิ่มเติมใน main.py
 import pygame
-import sys
 from entities import Character
 from ui import ClickButton
+from upgrades import GymMember, TimeMachine # นำเข้าคลาสอัปเกรด
 
-# Initialize Pygame
-pygame.init()
-screen = pygame.display.set_mode((800, 600))
-pygame.display.set_caption("LifeClicker: OOP Edition")
-clock = pygame.time.Clock()
+# ... (setup pygame เหมือนเดิม)
 
-# Setup Objects
 player = Character()
-click_btn = ClickButton(300, 450, 200, 80, "LIVE 1 YEAR", (70, 130, 180))
+# สร้าง List สำหรับเก็บไอเทมอัปเกรด
+upgrades = [
+    GymMember("Gym Membership", base_cost=10, multiplier=0.5),
+    TimeMachine("Time Machine", base_cost=50, multiplier=1.0)
+]
+
+# สร้างปุ่มสำหรับอัปเกรด (วางไว้ด้านข้าง)
+upgrade_buttons = []
+for i, upg in enumerate(upgrades):
+    btn = ClickButton(550, 100 + (i * 100), 220, 60, f"Buy {upg.name}", (100, 100, 100))
+    upgrade_buttons.append(btn)
+
+# ตัวแปรควบคุมเวลา
+last_update_time = pygame.time.get_ticks()
 
 while True:
-    screen.fill((240, 240, 240)) # พื้นหลังสีเทาอ่อน
+    current_time = pygame.time.get_ticks()
     
-    # 1. Event Handling
+    # --- 1. Event Handling ---
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
         if event.type == pygame.MOUSEBUTTONDOWN:
+            # คลิกปุ่มหลัก
             if click_btn.is_clicked(event.pos):
                 player.grow()
+            
+            # คลิกปุ่มอัปเกรด
+            for i, btn in enumerate(upgrade_buttons):
+                if btn.is_clicked(event.pos):
+                    cost = upgrades[i].get_cost()
+                    # สมมติว่าเรามีระบบเงิน หรือใช้ "อายุ" แลก (ในที่นี้ลองใช้คลิกสะสมแลก)
+                    upgrades[i].apply_effect(player)
+                    print(f"Bought {upgrades[i].name}! Level: {upgrades[i].level}")
 
-    # 2. Update & Logic
-    stage = player.get_stage_info()
+    # --- 2. Logic (Auto-Growth) ---
+    # เพิ่มอายุอัตโนมัติทุกๆ 1 วินาที (1000 ms)
+    if current_time - last_update_time >= 1000:
+        if player.auto_growth_rate > 0:
+            player.grow(player.auto_growth_rate)
+        last_update_time = current_time
 
-    # 3. Draw
-    # วาดตัวละคร (ใช้สี่เหลี่ยมแทน Sprite ไปก่อน)
-    pygame.draw.rect(screen, stage["color"], (350, 200, 100, 150), border_radius=15)
+    # --- 3. Rendering ---
+    # (วาดตัวละครและ Text เหมือนเดิม)
+    # เพิ่มการวาดปุ่มอัปเกรด
+    for btn in upgrade_buttons:
+        btn.draw(screen)
     
-    # แสดงข้อมูล
-    font = pygame.font.SysFont("Arial", 40, bold=True)
-    age_text = font.render(f"Age: {player.age} Years", True, (50, 50, 50))
-    stage_text = font.render(f"Stage: {stage['name']}", True, stage["color"])
-    
-    screen.blit(age_text, (20, 20))
-    screen.blit(stage_text, (20, 70))
-    click_btn.draw(screen)
-
-    pygame.display.flip()
-    clock.tick(60)
+    # แสดงค่าสถิติปัจจุบัน
+    stat_text = font.render(f"Speed: {player.years_per_click}y/click | Auto: {player.auto_growth_rate}y/s", True, (100, 100, 100))
+    screen.blit(stat_text, (20, 550))
