@@ -1,0 +1,14 @@
+[project]
+name = "life-clicker"
+version = "0.1.0"
+description = "A life simulation clicker game built with Pygame using OOP and SOLID principles."
+authors = [
+    { name = "Yotsaran", email = "your-email@example.com" }
+]
+dependencies = [
+    "pygame>=2.5.0",
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
