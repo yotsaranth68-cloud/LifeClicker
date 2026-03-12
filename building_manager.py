@@ -1,57 +1,49 @@
-import random
+"""
+building_manager.py
+
+การปรับปรุงตาม SOLID:
+- SRP  : Manager เก็บและ query ข้อมูลเท่านั้น — ไม่หาตำแหน่งเอง
+- DIP  : รับ BasePlacer ผ่าน constructor (Dependency Injection)
+         เปลี่ยน placement strategy ได้โดยไม่แก้ Manager
+- ISP  : เปิดเฉพาะ interface ที่จำเป็น (add, revenue_per_second, clear)
+         ซ่อน items ภายใน — ผู้ใช้ iterate ผ่าน __iter__ เท่านั้น
+"""
+
+from __future__ import annotations
+
 import pygame
+
+from placer import BasePlacer, RandomPlacer
 
 
 class BuildingManager:
-    """จัดการคอลเลกชันของสิ่งก่อสร้างและตำแหน่งในเมือง
+    """เก็บรายการสิ่งก่อสร้างและ delegate การหาตำแหน่งให้ Placer (SRP/DIP)"""
 
-    แยกออกจาก City เพื่อให้คลาส City มีขนาดเล็กลง
-    (ช่วยสอดคล้องกับ Single Responsibility)
-    """
+    def __init__(self, placer: BasePlacer | None = None):
+        # DIP: รับ abstraction; ถ้าไม่ส่งมาใช้ค่า default ที่สมเหตุสมผล
+        self._placer: BasePlacer = placer or RandomPlacer()
+        self._items: list[dict] = []
 
-    def __init__(self):
-        self.items = []
-
-    def add(self, name, surface, revenue):
-        """เพิ่มสิ่งก่อสร้างด้วยการสุ่มตำแหน่งและหลีกเลี่ยงการชน"""
-        w, h = surface.get_size()
-        max_attempts = 100
-        for _ in range(max_attempts):
-            x = random.randint(150, 500 - w)
-            y = random.randint(150, 350 - h)
-            new_rect = pygame.Rect(x, y, w, h)
-            collision = False
-            for b in self.items:
-                existing_rect = pygame.Rect(b["pos"], b["img"].get_size())
-                if new_rect.colliderect(existing_rect):
-                    collision = True
-                    break
-            if not collision:
-                self.items.append({
-                    "name": name,
-                    "img": surface,
-                    "pos": (x, y),
-                    "revenue": revenue,
-                })
-                return
-        # ถ้าไม่พบตำแหน่งที่ว่างภายในจำนวนครั้งที่กำหนด ให้วางแบบสุ่มสุดท้าย
-        x = random.randint(150, 500 - w)
-        y = random.randint(150, 350 - h)
-        self.items.append({
+    def add(self, name: str, surface: pygame.Surface, revenue: int) -> None:
+        """หาตำแหน่งผ่าน placer แล้วบันทึกสิ่งก่อสร้าง"""
+        pos = self._placer.place(surface, self._items)
+        self._items.append({
             "name": name,
             "img": surface,
-            "pos": (x, y),
+            "pos": pos,
             "revenue": revenue,
         })
 
-    def revenue_per_second(self):
-        return sum(b["revenue"] for b in self.items)
+    def revenue_per_second(self) -> int:
+        return sum(b["revenue"] for b in self._items)
 
-    def clear(self):
-        self.items.clear()
+    def clear(self) -> None:
+        self._items.clear()
+
+    # --- read-only interface (ISP: ไม่ expose list โดยตรง) ---
 
     def __iter__(self):
-        return iter(self.items)
+        return iter(self._items)
 
-    def __len__(self):
-        return len(self.items)
+    def __len__(self) -> int:
+        return len(self._items)
