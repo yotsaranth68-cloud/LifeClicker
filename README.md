@@ -85,11 +85,14 @@ shop_items: list[BuildingType] = [
 
 ## 🚀 การติดตั้งและใช้งาน
 
+สร้างfolder เปล่า
+คลิกขวา
+Open in Terminal
 ```bash
 git clone https://github.com/yotsaranth68-cloud/LifeClicker.git
-cd TownClicker
+cd LifeClicker
 pip install -r requirements.txt
-python main.py          # เปิดเกม
+python main.py
 ```
 
 หน้าต่างเกมจะปรากฏขึ้น คลิกพื้นที่กลางเพื่อเพิ่มระดับเมือง
